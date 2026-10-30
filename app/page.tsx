@@ -1,0 +1,3 @@
+import {redirect} from 'next/navigation';import {serverDb} from '../lib/supabase';import Dashboard from './ui';
+export const dynamic='force-dynamic';
+export default async function Home(){const db=await serverDb();const {data:{user}}=await db.auth.getUser();if(!user)redirect('/login');const [a,t,d]=await Promise.all([db.from('accounts').select('*').order('created_at'),db.from('transactions').select('*').order('occurred_on',{ascending:false}).limit(500),db.from('debts').select('*').order('due_on',{ascending:true})]);return <Dashboard initialAccounts={a.data||[]} initialTransactions={t.data||[]} initialDebts={d.data||[]} email={user.email||''}/>}
